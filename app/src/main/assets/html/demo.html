@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo</title>
+
+  <style>
+    .nav {
+      width: 100%;
+      /* 宽度全屏 */
+      background-color: #555;
+      /* 设置背景 */
+      overflow: auto;
+      /* 溢出根据浮动来调整 */
+    }
+
+    .nav li {
+      float: left;
+      /* 水平方向上一个挨一个显示元素 */
+      text-align: center;
+      /* 文本居中 */
+      width: 20%;
+      /* 等宽显示 (5 个按钮，每个显示 20%，20% * 5 = 100%) */
+      padding: 12px 0;
+      /* 设置头部底部的内边距 */
+      transition: all 0.3s ease;
+      /* 为悬停效果添加过渡效果 */
+      color: white;
+      /* 文本白色显示 */
+      font-size: 36px;
+      /* 增加字体大小 */
+    }
+
+    .icon-bar a:hover {
+      background-color: #000;
+      /* 添加鼠标移动到元素上的背景颜色 */
+    }
+  </style>
+
+  <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+  <script type="text/javascript" src="/assets/js/jquery.min.js" ></script>
+  <script type="text/javascript" src="/assets/js/bootstrap.min.js" ></script>
+
+
+  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+  <script>
+    function onloadFunction() {
+      let blueStatus = { isBTSupport: true, isBTEnable: false }
+      let wifiStatus = { isWifiSupport: true, isWifiEnable: false }
+
+      if (!blueStatus["isBTEnable"]) {
+        let btEnableTr = document.getElementById("btEnableTr");
+        let btEnableResult = document.getElementById("btEnableResult");
+        btEnableResult.innerHTML = "Disable";
+        var btEnableButton = document.createElement("td");
+        btEnableButton.id = "btEnableButton"
+        btEnableButton.innerHTML = `<a onclick='enableBT()' href='#'>enable</a>`;
+        btEnableTr.appendChild(btEnableButton);
+      }
+
+      if (!wifiStatus["isWifiEnable"]) {
+        let wifiEnableTr = document.getElementById("wifiEnableTr");
+        console.log(wifiEnableTr);
+
+        let wifiEnableResult = document.getElementById("wifiEnableResult");
+        wifiEnableResult.innerHTML = "Disable";
+        var wifiEnableButton = document.createElement("td");
+        wifiEnableButton.id = "wifiEnableButton"
+        wifiEnableButton.innerHTML = `<a onclick='enableWifi()' href='#'>enable</a>`;
+        wifiEnableTr.appendChild(wifiEnableButton);
+      }
+
+    }
+
+    function enableBT() {
+      let btEnableResult = document.getElementById("btEnableResult");
+      btEnableResult.innerHTML = "Pass";
+      let btEnableButton = document.getElementById("btEnableButton");
+      btEnableButton.hidden = true
+    }
+
+    function enableWifi() {
+      let wifiEnableResult = document.getElementById("wifiEnableResult");
+      wifiEnableResult.innerHTML = "Pass";
+      let wifiEnableButton = document.getElementById("wifiEnableButton");
+      wifiEnableButton.hidden = true
+    }
+    window.onload = onloadFunction;
+  </script>
+
+  <script>
+
+    var btId
+    var BTindex = 0;
+
+    var bluetoothSearchResult = [
+      { deviceName: "blueTooth1", mac: 111111, result: "pass" },
+      { deviceName: "blueTooth2", mac: 222222, result: "pass" },
+      { deviceName: "blueTooth3", mac: 333333, result: "fail" },
+    ]
+    function clickBTSearch() {
+      let table = document.getElementById("BluetoothDevices");
+      table.className = "table";
+      for (var bluetooth of bluetoothSearchResult) {
+
+        btId = "bt" + BTindex;
+        var tr = document.createElement("tr");
+        tr.id = btId;
+        var tdDeviceName = document.createElement("td");
+        tdDeviceName.innerHTML = bluetooth["deviceName"];
+        var tdMac = document.createElement("td");
+        tdMac.innerHTML = bluetooth["mac"];
+        var tdAction = document.createElement("td");
+        tdAction.innerHTML = `<a onclick='updateBTConnectResult(${btId})' href='#'>connect</a>`;
+        let tdResult = document.createElement("td");
+        tdResult.innerHTML = bluetooth["result"];
+        tdResult.hidden = true;
+
+        tr.appendChild(tdDeviceName);
+        tr.appendChild(tdMac);
+        tr.appendChild(tdAction);
+        tr.appendChild(tdResult);
+        table.appendChild(tr);
+        BTindex++
+
+        // let row = table.insertRow(1);
+        // let cell1 = row.insertCell(0);
+        // let cell2 = row.insertCell(1);
+        // let cell3 = row.insertCell(2);
+        // cell1.innerHTML = bluetooth["deviceName"];
+        // cell2.innerHTML = bluetooth["mac"];
+        // cell3.innerHTML = `<a onclick='updateBTConnectResult(${bluetooth["deviceName"]})' href='#'>connect</a>`
+      }
+      let searchDeviceResult = document.getElementById("searchBTDeviceResult");
+      searchDeviceResult.innerHTML = "Pass"
+    }
+    function updateBTConnectResult(btId) {
+      let connectDeviceResult = document.getElementById("connectBTDeviceResult");
+
+      console.log(btId.children);
+      let connectedText = document.getElementById("connectedBT");
+      let pResult;
+      let result;
+      if (btId.children[3].innerHTML === "pass") {
+        connectedText.style.color = "green"
+        pResult = "succeed"
+        result = "Pass"
+      } else {
+        connectedText.style.color = "red"
+        pResult = "fail"
+        result = "Fail"
+      }
+      connectDeviceResult.innerHTML = result;
+      connectedText.innerHTML = `Bluetooth: ${btId.children[0].innerHTML} connect ${pResult}!`
+      console.log(connectedText);
+
+
+
+      // console.log(btRow);
+    }
+  </script>
+
+  <script>
+    var wifiPara
+    var WifiIndex = 0
+    var wifiSearchResult = [
+      { SSID: "wifi1", BSSID: 111111, result: "pass" },
+      { SSID: "wifi2", BSSID: 222222, result: "pass" },
+      { SSID: "wifi3", BSSID: 333333, result: "fail" },
+    ]
+    function clickWifiSearch() {
+      let table = document.getElementById("WifiDevices");
+      table.className = "table";
+      for (var wifi of wifiSearchResult) {
+        wifiPara = "wifi" + WifiIndex
+        let tr = document.createElement("tr");
+        tr.id = wifiPara;
+        var tdSSID = document.createElement("td");
+        tdSSID.innerHTML = wifi["SSID"];
+        var tdBSSID = document.createElement("td");
+        tdBSSID.innerHTML = wifi["BSSID"];
+        var tdWifiAction = document.createElement("td");
+        tdWifiAction.innerHTML = `<a onclick='updateWifiConnectResult(${wifiPara})' href='#'>connect</a>`
+        let tdResult = document.createElement("td");
+        tdResult.innerHTML = wifi["result"];
+        tdResult.hidden = true;
+
+        tr.appendChild(tdSSID);
+        tr.appendChild(tdBSSID);
+        tr.appendChild(tdWifiAction);
+        tr.appendChild(tdResult);
+        table.appendChild(tr);
+        WifiIndex++;
+      }
+      let searchDeviceResult = document.getElementById("searchWifiDeviceResult");
+      searchDeviceResult.innerHTML = "Pass"
+    }
+    function updateWifiConnectResult(wifi) {
+      let connectDeviceResult = document.getElementById("connectWifiDeviceResult");
+
+      let connectedText = document.getElementById("connectedWifi");
+      let pResult;
+      let result;
+      if (wifi.children[3].innerHTML === "pass") {
+        connectedText.style.color = "green"
+        pResult = "succeed"
+        result = "Pass"
+      } else {
+        connectedText.style.color = "red"
+        pResult = "fail"
+        result = "Fail"
+      }
+      connectDeviceResult.innerHTML = result;
+      connectedText.innerHTML = `Wifi: ${wifi.children[0].innerHTML} connect ${pResult}!`
+
+    }
+  </script>
+</head>
+
+<body>
+
+  <ul class="nav">
+    <li class="active"><a href="#tab1" data-toggle="tab">Home</a></li>
+    <li><a href="#tab2" data-toggle="tab">Bluetooth</a></li>
+    <li><a href="#tab3" data-toggle="tab">Wifi</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab1">
+      <h2>Welcome! This web is used for diag Test</h2>
+    </div>
+    <div class="tab-pane fade" id="tab2">
+      <h2>Bluetooth Test</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>item</th>
+            <th>result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Is Bluetooth Support</td>
+            <td id="btSupportResult">Pass</td>
+          </tr>
+          <tr id="btEnableTr">
+            <td>Is Bluetooth Enable</td>
+            <td id="btEnableResult">Pass</td>
+          </tr>
+          <tr>
+            <td>Search Device</td>
+            <td id="searchBTDeviceResult">Waiting</td>
+          </tr>
+          <tr>
+            <td>Connect Device</td>
+            <td id="connectBTDeviceResult">Waiting</td>
+          </tr>
+        </tbody>
+      </table>
+      <br />
+      <p id="connectedBT"></p>
+      <button onclick="clickBTSearch()">
+        Search Bluetooth
+      </button>
+      <table id="BluetoothDevices">
+        <tr>
+          <th>deviceName</th>
+          <th>mac</th>
+          <th>action</th>
+        </tr>
+      </table>
+      <br>
+
+    </div>
+    <div class="tab-pane fade" id="tab3">
+      <h2>Wifi Test</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>item</th>
+            <th>result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Is Wifi Support</td>
+            <td id="wifiSupportResult">Pass</td>
+          </tr>
+          <tr id="wifiEnableTr">
+            <td>Is Wifi Enable</td>
+            <td id="wifiEnableResult">Pass</td>
+          </tr>
+          <tr>
+            <td>Search Device</td>
+            <td id="searchWifiDeviceResult">Waiting</td>
+          </tr>
+          <tr>
+            <td>Connect Device</td>
+            <td id="connectWifiDeviceResult">Waiting</td>
+            
+          </tr>
+        </tbody>
+      </table>
+      <br />
+      <p id="connectedWifi"></p>
+      <button onclick="clickWifiSearch()">
+        Search Wifi
+      </button>
+      <table id="WifiDevices">
+        <tr>
+          <th>SSID</th>
+          <th>BSSID</th>
+          <th>action</th>
+        </tr>
+      </table>
+    </div>
+  </div>
+</body>
+
+</html>

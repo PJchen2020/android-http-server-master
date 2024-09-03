@@ -1,0 +1,44 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+compileJava {
+    sourceCompatibility = 1.7
+}
+
+compileTestJava {
+    sourceCompatibility = 1.8
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'ro.polak.http.cli.DefaultCliServerGui'
+    }
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'StandaloneHTTP server',
+                'Main-Class': 'ro.polak.http.cli.DefaultCliServerGui'
+    }
+    baseName = project.name + '-all'
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(path: ':http')
+}
+
+
+task(bootRun, dependsOn: fatJar) {
+    doLast {
+        print "$buildDir/libs/cli.jar"
+        javaexec {
+            main = "-jar"
+            args = [
+                    "$buildDir/libs/cli-all.jar"
+            ]
+        }
+    }
+}

@@ -1,0 +1,71 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'info.solidsoft.pitest'
+
+compileJava {
+    sourceCompatibility = 1.7
+}
+
+compileTestJava {
+    sourceCompatibility = 1.8
+}
+
+// Added here to enable http subproject to be built without the root project
+repositories {
+    jcenter()
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.6.0'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
+    testImplementation 'org.mockito:mockito-core:3.12.4'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.12.4'
+    testImplementation 'org.hamcrest:hamcrest-library:2.2'
+    testImplementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    testImplementation project(path: ':cli')
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+    afterEvaluate {
+        getClassDirectories().setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['example/*.class'])
+        }))
+    }
+}
+
+// More details at https://github.com/szpak/gradle-pitest-plugin/blob/master/src/main/groovy/info/solidsoft/gradle/pitest/PitestPluginExtension.groovy
+pitest {
+    targetClasses = ['ro.polak.http.*']
+    avoidCallsTo = ['ro.polak.http.Statistics',
+                    'ro.polak.http.utilities.IOUtilities',
+                    'java.util.logging.Logger']
+    threads = 4
+    outputFormats = ['XML', 'HTML']
+    timestampedReports = false
+    junit5PluginVersion = '0.12'
+}
+
+check.dependsOn jacocoTestReport
+
+checkstyle {
+    sourceSets = [project.sourceSets.main, project.sourceSets.test]
+}
+
+test {
+    useJUnitPlatform()
+}
