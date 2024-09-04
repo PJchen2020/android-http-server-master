@@ -32,21 +32,14 @@
       font-size: 36px;
       /* 增加字体大小 */
     }
-
-    .icon-bar a:hover {
-      background-color: #000;
-      /* 添加鼠标移动到元素上的背景颜色 */
-    }
   </style>
 
   <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
   <script type="text/javascript" src="/assets/js/jquery.min.js" ></script>
   <script type="text/javascript" src="/assets/js/bootstrap.min.js" ></script>
+  <script type="text/javascript" src="/assets/js/axios.min.js" ></script>
 
-
-  <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+<!--  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
 
   <script>
     function onloadFunction() {
@@ -83,6 +76,8 @@
       let btEnableButton = document.getElementById("btEnableButton");
       btEnableButton.hidden = true
     }
+
+
 
     function enableWifi() {
       let wifiEnableResult = document.getElementById("wifiEnableResult");
@@ -226,7 +221,7 @@
 
   <ul class="nav">
     <li class="active"><a href="#tab1" data-toggle="tab">Home</a></li>
-    <li><a href="#tab2" data-toggle="tab">Bluetooth</a></li>
+    <li><a href="#tab2" data-toggle="tab" onclick="clickBluetoothTest()">Bluetooth</a></li>
     <li><a href="#tab3" data-toggle="tab">Wifi</a></li>
   </ul>
   <div class="tab-content">
