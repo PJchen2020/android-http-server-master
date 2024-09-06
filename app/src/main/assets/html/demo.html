@@ -38,6 +38,8 @@
   <script type="text/javascript" src="/assets/js/jquery.min.js" ></script>
   <script type="text/javascript" src="/assets/js/bootstrap.min.js" ></script>
   <script type="text/javascript" src="/assets/js/axios.min.js" ></script>
+  <script type="text/javascript" src="/assets/js/myAxios.js" ></script>
+  <script type="text/javascript" src="/assets/js/demo.js" ></script>
 
 <!--  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
 
@@ -48,8 +50,8 @@
 
       if (!blueStatus["isBTEnable"]) {
         let btEnableTr = document.getElementById("btEnableTr");
-        let btEnableResult = document.getElementById("btEnableResult");
-        btEnableResult.innerHTML = "Disable";
+<!--        let btEnableResult = document.getElementById("btEnableResult");-->
+<!--        btEnableResult.innerHTML = "Disable";-->
         var btEnableButton = document.createElement("td");
         btEnableButton.id = "btEnableButton"
         btEnableButton.innerHTML = `<a onclick='enableBT()' href='#'>enable</a>`;
@@ -240,11 +242,11 @@
         <tbody>
           <tr>
             <td>Is Bluetooth Support</td>
-            <td id="btSupportResult">Pass</td>
+            <td id="btSupportResult">Waiting</td>
           </tr>
           <tr id="btEnableTr">
             <td>Is Bluetooth Enable</td>
-            <td id="btEnableResult">Pass</td>
+            <td id="btEnableResult">Waiting</td>
           </tr>
           <tr>
             <td>Search Device</td>

@@ -1,10 +1,26 @@
+
 function clickBluetoothTest() {
-      axios.get('http://192.168.2.160:8080/api/bluetooth',{
+      service.get('api/bluetooth',{
         params:{
         action:"init"
         }
       }).then(res=>{
-          console.log(res)
+          var btSupportResult = document.getElementById("btSupportResult");
+          var btEnableResult = document.getElementById("btEnableResult");
+          console.log(btSupportResult)
+
+          if(res.isBluetoothSupported){
+            btSupportResult.innerHTML = 'Pass';
+          }else {
+            btSupportResult.innerHTML = 'Fail';
+          }
+
+          if(res.isBluetoothEnabled){
+              btEnableResult.innerHTML = 'Enable';
+          }else {
+              btEnableResult.innerHTML = 'Disable';
+          }
+
       }).catch(err=>{
           console.log(err)
       })
