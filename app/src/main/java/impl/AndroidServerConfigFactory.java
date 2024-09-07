@@ -68,6 +68,10 @@ public class AndroidServerConfigFactory extends BaseAndroidServerConfigFactory {
                     .withUrlPattern(Pattern.compile("^/empty"))
                     .withServletClass(EmptyServlet.class)
                 .   end()
+                    .addServlet()
+                    .withUrlPattern(Pattern.compile("^/wifi"))
+                    .withServletClass(WIFITestServlet.class)
+                    .end()
                 .end()
 
                 .addServletContext()

@@ -9,6 +9,8 @@ package admin;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static api.logic.APIResponse.MEDIA_TYPE_APPLICATION_JSON;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -29,6 +31,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,6 +55,7 @@ import java.util.regex.Pattern;
 
 import admin.TestModule.DeviceWiFiManager;
 import admin.logic.HtmlReader;
+import api.BluetoothServlet;
 import ro.polak.http.configuration.ServerConfig;
 import ro.polak.http.exception.ServletException;
 import ro.polak.http.servlet.HttpServlet;
@@ -68,12 +73,19 @@ public class WIFITestServlet extends HttpServlet {
     private WIFITester wifiTester;
     final int ScanTimeout = 60;
 
+    private static final String WIFI_ACTION = "action";
+    private static final String WIFI_ADDRESS = "address";
+    public static final String CONNECT = "connect";
+    public static final String SCAN = "scan";
+    private static final String ENABLE = "enable";
+    private static final String INIT = "init";
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void service(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, InterruptedException {
-        response.getWriter().print("WIFITestServlet thread ID = " + Thread.currentThread().getId());
+//        response.getWriter().print("WIFITestServlet thread ID = " + Thread.currentThread().getId());
 
         LOGGER.log(Level.INFO, "Entry WIFITestServlet service process");
 
@@ -81,34 +93,105 @@ public class WIFITestServlet extends HttpServlet {
         mainService = (MainService)serverConfig.getServiceContext(); //getServiceContext --> ro.polak.webserver.MainService@6103e86
         if(null == mainService){
             response.getWriter().print("MainService object is null!!");
-
             return;
         }
 
         if(!wifiTestInit()) {
             response.getWriter().print("wifiTestInit Fail!!");
-
             return;
         }
 
         try {
-            response.getWriter().print(outputWIFIInfo(mainService));
-            //bluetoothTester.onDestroy();
+            String wifi_action = request.getParameter(WIFI_ACTION);
+            String wifi_address = request.getParameter(WIFI_ADDRESS);
+            response.setContentType(MEDIA_TYPE_APPLICATION_JSON);
+
+            if(wifi_action!=null && wifi_action.equals(ENABLE))
+            {
+                WIFITestResult wifiTestResult=new WIFITestResult();
+                wifiTestResult.message = "enable WIFI fail";
+                wifiTestResult.result = "Fail";
+                boolean isWifiSupported = wifiTester.isWifiSupported();
+                if (isWifiSupported) {
+                    if(wifiTester.isWifiEnable()){
+                        wifiTestResult.result = "Pass";
+                        wifiTestResult.message = "enable WIFI successfully";
+                    }
+                    else wifiTestResult.message = "enable WIFI fail";
+                } else
+                    wifiTestResult.message = "WIFI not support!";
+                Gson gson = new Gson();
+                response.getWriter().print(gson.toJson(wifiTestResult));
+            }
+
+            if(wifi_action!=null && wifi_action.equals(INIT))
+            {
+                if(!wifiTestInit()) {
+                    response.getWriter().print("wifiTestInit Fail!!");
+                }
+                response.getWriter().print(outputWIFIInfo(mainService));
+            }
+
+            if(wifi_action!=null && wifi_action.equals(SCAN))
+            {
+                WIFIScanTestResult wifiTestResult=new WIFIScanTestResult();
+                List<WIFIScanResultInfo> wifiScanResultInfoList =new ArrayList<>();
+                if(!wifiTester.isWifiSupported()){
+                    wifiTestResult.result="Fail";
+                    wifiTestResult.errMsg  = "WIFI not support!";
+                }
+                if(!wifiTester.isWifiEnable()){
+                    wifiTestResult.result="Fail";
+                    wifiTestResult.errMsg  = "WIFI not enable!";
+                }
+                wifiTester.scanWifi();
+                Gson gson = new Gson();
+                for (int i = 0; i < ScanTimeout; ++i) {
+                    if (wifiTester.isScanFinished) {
+                        wifiTestResult.scanMsg = "Scan finished in " + i + " seconds";
+                        //strConnectResult = bluetoothTester.connectToBluetoothDevice("C4:DF:39:8C:08:14");
+                        break;
+                    }
+
+                    Thread.sleep(1000);
+
+                    if (i + 1 >= ScanTimeout) {
+                        wifiTestResult.result="Fail";
+                        wifiTestResult.errMsg  = "Scan process time out!";
+                    }
+                }//end of for
+                if (!wifiTester.mWiFiList.isEmpty()) {
+                    // 键PairedDevices的值是对象，所以又要创建一个对象
+                    LOGGER.log(Level.INFO, "DeviceWiFiManager.scanResult: no null"+wifiTester.mWiFiList);
+
+                    for (ScanResult result : wifiTester.mWiFiList) {
+                        WIFIScanResultInfo wifiScanResultInfo=new WIFIScanResultInfo();
+                        wifiScanResultInfo.SSID=result.SSID;
+                        wifiScanResultInfo.BSSID=result.BSSID;
+                        wifiScanResultInfoList.add(wifiScanResultInfo);
+                    }
+                    wifiTestResult.result="Pass";
+                    wifiTestResult.wifiApListCount=  wifiScanResultInfoList.size();
+                    wifiTestResult.wifiApList=wifiScanResultInfoList;
+                }
+
+                response.getWriter().print(gson.toJson(wifiTestResult));
+            }
+
+
+//            response.getWriter().print(outputWIFIInfo(mainService));
+
         }
         catch (Exception exception){
             response.getWriter().print(exception.toString());
         }
 
-        response.getWriter().print(RenderHtmlFile());
+//        response.getWriter().print(RenderHtmlFile());
     }
 
-//    private void startBTTest(MainService ms){
-//        Intent intent = new Intent();
-//        intent.setClass(ms, BluetoothTester.class);
-//        ms.startService(intent);
-//    }
 
     private String outputWIFIInfo(MainService ms) throws JSONException {
+        WIFITestInfo wifiTestInfo=new WIFITestInfo();
         String ScanMsg = "Task not started";
         JSONObject wifiObject = new JSONObject();
         boolean isWifiEnable = false;
@@ -116,7 +199,7 @@ public class WIFITestServlet extends HttpServlet {
         String strEnableStatus = "Enable WIFI fail";
         Map<String, String> scanAPlist = new HashMap<>();
         String strConnectResult = "not test";
-        String errMsg = "Not defined";
+        String errMsg = "";
 
         if (isWifiSupported) {
             isWifiEnable = wifiTester.isWifiEnable();
@@ -124,17 +207,23 @@ public class WIFITestServlet extends HttpServlet {
             errMsg = "WIFI not support!";
 
         try {
-            wifiObject.put("isWifiSupported", isWifiSupported);
+            wifiTestInfo.isWifiSupported=isWifiSupported;
+//            wifiObject.put("isWifiSupported", isWifiSupported);
             if(isWifiSupported) {
-                wifiObject.put("isWifiEnable", isWifiEnable);
-                wifiObject.put("getLocalIP", wifiTester.getLocalIP());
-                wifiObject.put("isNetConnection", wifiTester.isNetConnection(ms));
+                wifiTestInfo.isWifiEnable=isWifiEnable;
+                wifiTestInfo.localIP=wifiTester.getLocalIP();
+                wifiTestInfo.isNetConnection=wifiTester.isNetConnection(ms);
+//                wifiObject.put("isWifiEnable", isWifiEnable);
+//                wifiObject.put("localIP", wifiTester.getLocalIP());
+//                wifiObject.put("isNetConnection", wifiTester.isNetConnection(ms));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    wifiObject.put("isNetSystemAvailable", wifiTester.isNetSystemAvailable(ms));
+                    wifiTestInfo.isNetSystemAvailable=wifiTester.isNetSystemAvailable(ms);
+//                    wifiObject.put("isNetSystemAvailable", wifiTester.isNetSystemAvailable(ms));
                 }
-                wifiObject.put("Web test of baidu", wifiTester.startWebTest("https://www.baidu.com"));
-                //wifiObject.put("Web test of Google", wifiTester.startWebTest("https://www.google.com.hk/?hl=cn"));
-                wifiObject.put("Ping test of 192.168.3.1", wifiTester.startPingTest("192.168.99.188"));//home 3.1  office:99.188
+                wifiTestInfo.webTestBaidu=wifiTester.startWebTest("https://www.baidu.com");
+//                wifiObject.put("webTestBaidu", wifiTester.startWebTest("https://www.baidu.com"));
+//                wifiObject.put("Web test of Google", wifiTester.startWebTest("https://www.google.com.hk/?hl=cn"));
+//                wifiObject.put("Ping test of 192.168.3.1", wifiTester.startPingTest("192.168.99.188"));//home 3.1  office:99.188
 
                 wifiTester.scanWifi();
                 for (int i = 0; i < ScanTimeout; ++i) {
@@ -167,27 +256,36 @@ public class WIFITestServlet extends HttpServlet {
 
                 if (!wifiTester.mWiFiList.isEmpty()) {
                     // 键PairedDevices的值是对象，所以又要创建一个对象
-                    JSONObject pDevices = new JSONObject();
+                    List<WIFIScanResultInfo> wifiScanResultInfoList =new ArrayList<>();
                     for (ScanResult result : wifiTester.mWiFiList) {
-                        pDevices.put(result.BSSID, result.SSID);
+                        WIFIScanResultInfo wifiScanResultInfo=new WIFIScanResultInfo();
+                        wifiScanResultInfo.SSID=result.SSID;
+                        wifiScanResultInfo.BSSID=result.BSSID;
+                        wifiScanResultInfoList.add(wifiScanResultInfo);
                     }
-                    wifiObject.put("WifiApListCount", pDevices.length());
-                    wifiObject.put("WifiApList", pDevices);
+                    wifiTestInfo.wifiApListCount=wifiScanResultInfoList.size();
+                    wifiTestInfo.wifiApList=wifiScanResultInfoList;
+//                    wifiObject.put("wifiApListCount", wifiScanResultInfoList.size());
+//                    wifiObject.put("wifiApList", wifiScanResultInfoList);
                 }
-                wifiObject.put("scanWifiResult", wifiTester.bScanResult);
-                wifiObject.put("ScanMsg", ScanMsg);
-
-                wifiObject.put("ConnectResult", wifiTester.bSConnectResult);
-                wifiObject.put("ConnectMessage", strConnectResult);
+                wifiTestInfo.scanWifiResult=wifiTester.bScanResult;
+                wifiTestInfo.scanMsg=ScanMsg;
+                wifiTestInfo.connectResult=wifiTester.bSConnectResult;
+                wifiTestInfo.connectMsg=strConnectResult;
+//                wifiObject.put("scanWifiResult", wifiTester.bScanResult);
+//                wifiObject.put("scanMsg", ScanMsg);
+//                wifiObject.put("connectWifiResult", wifiTester.bSConnectResult);
+//                wifiObject.put("connectMsg", strConnectResult);
             }
-
-            wifiObject.put("errMsg", errMsg);
+            wifiTestInfo.errMsg=errMsg;
+//            wifiObject.put("errMsg", errMsg);
         }
         catch (Exception e){
             return e.toString();
         }
 
-        return wifiObject.toString();
+        Gson gson = new Gson();
+        return gson.toJson(wifiTestInfo);
     }
 
     private boolean wifiTestInit() {
@@ -203,6 +301,39 @@ public class WIFITestServlet extends HttpServlet {
         return htmlFile.readHtmlFile();
     }
 
+    public static class WIFIScanResultInfo{
+        public String SSID;
+        public String BSSID;
+    }
+
+    public static class WIFITestResult{
+        public String result;
+        public String message;
+    }
+    public static class WIFIScanTestResult{
+        public String result;
+        public int wifiApListCount;
+        public List <WIFIScanResultInfo> wifiApList;
+        public String scanMsg;
+        public String errMsg;
+    }
+
+    public static class WIFITestInfo{
+        public boolean isWifiSupported;
+        public boolean isWifiEnable;
+        public String localIP;
+        public String enableStatusMsg;
+        public boolean isNetConnection;
+        public boolean  isNetSystemAvailable;
+        public boolean webTestBaidu;
+        public boolean scanWifiResult;
+        public int wifiApListCount;
+        public List <WIFIScanResultInfo> wifiApList;
+        public String scanMsg;
+        public boolean connectResult;
+        public String connectMsg;
+        public String errMsg;
+    }
 
     //=========================================== WIFI Tester ===============================
     private static class WIFITester{
@@ -471,7 +602,7 @@ public class WIFITestServlet extends HttpServlet {
             if(null == deviceWiFiManager || !isWifiEnable())
                 return false;
 
-            mWiFiList.clear();
+//            mWiFiList.clear();
             isScanFinished = false;
             bSConnectResult =false;
             scanWifi();
@@ -570,7 +701,7 @@ public class WIFITestServlet extends HttpServlet {
         //https://juejin.cn/post/7195742069997322301
         private void connectWifi(String ssid, String pwd) {
             // android 10以上
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 //step1-创建建议列表
                 WifiNetworkSuggestion suggestion = new WifiNetworkSuggestion.Builder()
                         .setSsid(ssid)
