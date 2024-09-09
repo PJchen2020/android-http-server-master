@@ -2,7 +2,7 @@
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: 'http://192.168.5.9:8080/', // api的base_url
+  baseURL: 'http://192.168.2.160:8080/', // api的base_url
   timeout: 60000 // 请求超时时间
 });
 

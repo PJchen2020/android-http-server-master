@@ -174,17 +174,18 @@ public class BluetoothServlet extends HttpServlet {
         boolean bBTEnable = false;
         InitOutPutInfo btTestInfo = new InitOutPutInfo();
         if (bluetoothTester.isBTSupported) {
-            bBTEnable = bluetoothTester.enableBluetooth();
+//            bBTEnable = bluetoothTester.enableBluetooth();
+            bBTEnable = bluetoothTester.isBTEnabled;
             if(!bBTEnable)
             {
                 btTestInfo.isBluetoothSupported = bluetoothTester.isBTSupported;
                 btTestInfo.isBluetoothEnabled = bBTEnable;
-                btTestInfo.message = "Bluetooth enable Fail";
+                btTestInfo.message = "Bluetooth didn't enable";
             }
             else{
                 btTestInfo.isBluetoothSupported = bluetoothTester.isBTSupported;
                 btTestInfo.isBluetoothEnabled = bBTEnable;
-                btTestInfo.message = "Bluetooth enable successfully";
+                btTestInfo.message = "Bluetooth already enable";
             }
         }
         else{
