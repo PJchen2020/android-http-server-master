@@ -40,183 +40,6 @@
   <script type="text/javascript" src="/assets/js/axios.min.js" ></script>
   <script type="text/javascript" src="/assets/js/myAxios.js" ></script>
   <script type="text/javascript" src="/assets/js/demo.js" ></script>
-
-<!--  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
-
-  <script>
-    function onloadFunction() {
-      let blueStatus = { isBTSupport: true, isBTEnable: false }
-      let wifiStatus = { isWifiSupport: true, isWifiEnable: false }
-
-<!--      if (!blueStatus["isBTEnable"]) {-->
-<!--        let btEnableTr = document.getElementById("btEnableTr");-->
-<!--&lt;!&ndash;        let btEnableResult = document.getElementById("btEnableResult");&ndash;&gt;-->
-<!--&lt;!&ndash;        btEnableResult.innerHTML = "Disable";&ndash;&gt;-->
-<!--        var btEnableButton = document.createElement("td");-->
-<!--        btEnableButton.id = "btEnableButton"-->
-<!--        btEnableButton.innerHTML = `<a onclick='enableBT()' href='#'>enable</a>`;-->
-<!--        btEnableTr.appendChild(btEnableButton);-->
-<!--      }-->
-
-<!--      if (!wifiStatus["isWifiEnable"]) {-->
-<!--        let wifiEnableTr = document.getElementById("wifiEnableTr");-->
-<!--        console.log(wifiEnableTr);-->
-
-<!--        let wifiEnableResult = document.getElementById("wifiEnableResult");-->
-<!--        wifiEnableResult.innerHTML = "Disable";-->
-<!--        var wifiEnableButton = document.createElement("td");-->
-<!--        wifiEnableButton.id = "wifiEnableButton"-->
-<!--        wifiEnableButton.innerHTML = `<a onclick='enableWifi()' href='#'>enable</a>`;-->
-<!--        wifiEnableTr.appendChild(wifiEnableButton);-->
-<!--      }-->
-
-    }
-
-<!--    function enableBT() {-->
-<!--      let btEnableResult = document.getElementById("btEnableResult");-->
-<!--      btEnableResult.innerHTML = "Pass";-->
-<!--      let btEnableButton = document.getElementById("btEnableButton");-->
-<!--      btEnableButton.hidden = true-->
-<!--    }-->
-
-
-
-<!--    function enableWifi() {-->
-<!--      let wifiEnableResult = document.getElementById("wifiEnableResult");-->
-<!--      wifiEnableResult.innerHTML = "Pass";-->
-<!--      let wifiEnableButton = document.getElementById("wifiEnableButton");-->
-<!--      wifiEnableButton.hidden = true-->
-<!--    }-->
-<!--    window.onload = onloadFunction;-->
-  </script>
-
-  <script>
-
-<!--    var btId-->
-<!--    var BTindex = 0;-->
-
-<!--    var bluetoothSearchResult = [-->
-<!--      { deviceName: "blueTooth1", mac: 111111, result: "pass" },-->
-<!--      { deviceName: "blueTooth2", mac: 222222, result: "pass" },-->
-<!--      { deviceName: "blueTooth3", mac: 333333, result: "fail" },-->
-<!--    ]-->
-<!--    function clickBTSearch() {-->
-<!--      let table = document.getElementById("BluetoothDevices");-->
-<!--      table.className = "table";-->
-<!--      for (var bluetooth of bluetoothSearchResult) {-->
-
-<!--        btId = "bt" + BTindex;-->
-<!--        var tr = document.createElement("tr");-->
-<!--        tr.id = btId;-->
-<!--        var tdDeviceName = document.createElement("td");-->
-<!--        tdDeviceName.innerHTML = bluetooth["deviceName"];-->
-<!--        var tdMac = document.createElement("td");-->
-<!--        tdMac.innerHTML = bluetooth["mac"];-->
-<!--        var tdAction = document.createElement("td");-->
-<!--        tdAction.innerHTML = `<a onclick='updateBTConnectResult(${btId})' href='#'>connect</a>`;-->
-<!--        let tdResult = document.createElement("td");-->
-<!--        tdResult.innerHTML = bluetooth["result"];-->
-<!--        tdResult.hidden = true;-->
-
-<!--        tr.appendChild(tdDeviceName);-->
-<!--        tr.appendChild(tdMac);-->
-<!--        tr.appendChild(tdAction);-->
-<!--        tr.appendChild(tdResult);-->
-<!--        table.appendChild(tr);-->
-<!--        BTindex++-->
-
-<!--        // let row = table.insertRow(1);-->
-<!--        // let cell1 = row.insertCell(0);-->
-<!--        // let cell2 = row.insertCell(1);-->
-<!--        // let cell3 = row.insertCell(2);-->
-<!--        // cell1.innerHTML = bluetooth["deviceName"];-->
-<!--        // cell2.innerHTML = bluetooth["mac"];-->
-<!--        // cell3.innerHTML = `<a onclick='updateBTConnectResult(${bluetooth["deviceName"]})' href='#'>connect</a>`-->
-<!--      }-->
-<!--      let searchDeviceResult = document.getElementById("searchBTDeviceResult");-->
-<!--      searchDeviceResult.innerHTML = "Pass"-->
-<!--    }-->
-<!--    function updateBTConnectResult(btId) {-->
-<!--      let connectDeviceResult = document.getElementById("connectBTDeviceResult");-->
-
-<!--      console.log(btId.children);-->
-<!--      let connectedText = document.getElementById("connectedBT");-->
-<!--      let pResult;-->
-<!--      let result;-->
-<!--      if (btId.children[3].innerHTML === "pass") {-->
-<!--        connectedText.style.color = "green"-->
-<!--        pResult = "succeed"-->
-<!--        result = "Pass"-->
-<!--      } else {-->
-<!--        connectedText.style.color = "red"-->
-<!--        pResult = "fail"-->
-<!--        result = "Fail"-->
-<!--      }-->
-<!--      connectDeviceResult.innerHTML = result;-->
-<!--      connectedText.innerHTML = `Bluetooth: ${btId.children[0].innerHTML} connect ${pResult}!`-->
-<!--      console.log(connectedText);-->
-
-
-
-<!--      // console.log(btRow);-->
-<!--    }-->
-<!--  </script>-->
-
-<!--  <script>-->
-<!--    var wifiPara-->
-<!--    var WifiIndex = 0-->
-<!--    var wifiSearchResult = [-->
-<!--      { SSID: "wifi1", BSSID: 111111, result: "pass" },-->
-<!--      { SSID: "wifi2", BSSID: 222222, result: "pass" },-->
-<!--      { SSID: "wifi3", BSSID: 333333, result: "fail" },-->
-<!--    ]-->
-<!--    function clickWifiSearch() {-->
-<!--      let table = document.getElementById("WifiDevices");-->
-<!--      table.className = "table";-->
-<!--      for (var wifi of wifiSearchResult) {-->
-<!--        wifiPara = "wifi" + WifiIndex-->
-<!--        let tr = document.createElement("tr");-->
-<!--        tr.id = wifiPara;-->
-<!--        var tdSSID = document.createElement("td");-->
-<!--        tdSSID.innerHTML = wifi["SSID"];-->
-<!--        var tdBSSID = document.createElement("td");-->
-<!--        tdBSSID.innerHTML = wifi["BSSID"];-->
-<!--        var tdWifiAction = document.createElement("td");-->
-<!--        tdWifiAction.innerHTML = `<a onclick='updateWifiConnectResult(${wifiPara})' href='#'>connect</a>`-->
-<!--        let tdResult = document.createElement("td");-->
-<!--        tdResult.innerHTML = wifi["result"];-->
-<!--        tdResult.hidden = true;-->
-
-<!--        tr.appendChild(tdSSID);-->
-<!--        tr.appendChild(tdBSSID);-->
-<!--        tr.appendChild(tdWifiAction);-->
-<!--        tr.appendChild(tdResult);-->
-<!--        table.appendChild(tr);-->
-<!--        WifiIndex++;-->
-<!--      }-->
-<!--      let searchDeviceResult = document.getElementById("searchWifiDeviceResult");-->
-<!--      searchDeviceResult.innerHTML = "Pass"-->
-<!--    }-->
-<!--    function updateWifiConnectResult(wifi) {-->
-<!--      let connectDeviceResult = document.getElementById("connectWifiDeviceResult");-->
-
-<!--      let connectedText = document.getElementById("connectedWifi");-->
-<!--      let pResult;-->
-<!--      let result;-->
-<!--      if (wifi.children[3].innerHTML === "pass") {-->
-<!--        connectedText.style.color = "green"-->
-<!--        pResult = "succeed"-->
-<!--        result = "Pass"-->
-<!--      } else {-->
-<!--        connectedText.style.color = "red"-->
-<!--        pResult = "fail"-->
-<!--        result = "Fail"-->
-<!--      }-->
-<!--      connectDeviceResult.innerHTML = result;-->
-<!--      connectedText.innerHTML = `Wifi: ${wifi.children[0].innerHTML} connect ${pResult}!`-->
-
-<!--    }-->
-<!--  </script>-->
 </head>
 
 <body>
@@ -248,6 +71,7 @@
             <td>Is Bluetooth Enable</td>
             <td id="btEnableResult">Waiting</td>
           </tr>
+
           <tr>
             <td>Search Device</td>
             <td id="searchBTDeviceResult">Waiting</td>
@@ -256,11 +80,13 @@
             <td>Connect Device</td>
             <td id="connectBTDeviceResult">Waiting</td>
           </tr>
+
+
         </tbody>
       </table>
       <br />
       <p id="connectedBT"></p>
-      <button onclick="clickBTSearch()">
+      <button id = "btSearchButton" onclick="clickBTSearch()">
         Search Bluetooth
       </button>
       <table id="BluetoothDevices">
@@ -292,26 +118,35 @@
             <td id="wifiEnableResult">Waiting</td>
           </tr>
           <tr>
+            <td>Connect Device</td>
+            <td id="connectWifiDeviceResult">Waiting</td>
+          </tr>
+          <tr>
             <td>Search Device</td>
             <td id="searchWifiDeviceResult">Waiting</td>
           </tr>
+
           <tr>
-            <td>Connect Device</td>
-            <td id="connectWifiDeviceResult">Waiting</td>
-            
+            <td>Browser Test</td>
+            <td id="browserTestResult">Waiting</td>
+          </tr>
+          <tr>
+            <td>Ping Test</td>
+            <td id="pingTestResult">Waiting</td>
           </tr>
         </tbody>
       </table>
       <br />
+      <p id="showIP"></p>
       <p id="connectedWifi"></p>
-      <button onclick="clickWifiSearch()">
+      <button id="wifiSearchButton" onclick="clickWifiSearch()">
         Search Wifi
       </button>
       <table id="WifiDevices">
         <tr>
           <th>SSID</th>
           <th>BSSID</th>
-          <th>action</th>
+<!--          <th>action</th>-->
         </tr>
       </table>
     </div>

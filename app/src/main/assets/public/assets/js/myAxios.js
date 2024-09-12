@@ -2,13 +2,14 @@
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: 'http://192.168.2.160:8080/', // api的base_url
+  baseURL: 'http://192.168.2.162:8080/', // api的base_url
   timeout: 60000 // 请求超时时间
 });
 
 // 请求拦截器
 service.interceptors.request.use(
   config => {
+
     // 可以在这里添加请求头等信息
     return config;
   },
