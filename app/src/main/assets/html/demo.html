@@ -100,7 +100,8 @@
 
     </div>
     <div class="tab-pane fade" id="tab3">
-      <h2>Wifi Test</h2>
+      <h2>Wifi Test </h2>
+      <p id="showIP"></p>
       <table class="table">
         <thead>
           <tr>
@@ -125,19 +126,31 @@
             <td>Search Device</td>
             <td id="searchWifiDeviceResult">Waiting</td>
           </tr>
-
-          <tr>
-            <td>Browser Test</td>
-            <td id="browserTestResult">Waiting</td>
-          </tr>
           <tr>
             <td>Ping Test</td>
-            <td id="pingTestResult">Waiting</td>
+            <td>
+              <div>
+                <p id="pingTestResult">Waiting</p>
+                <p id="pingTestResultMessage"></p>
+              </div>
+            </td>
+            <td><div><input id="pingTestInptu" placeholder="please input ip address" type="text"><button id="pingTestButton" onclick="clickPingTest()">Test</button></div></td>
           </tr>
+          <tr>
+            <td>Browser Test</td>
+            <td>
+              <div>
+                <p id="browserTestResult">Waiting</p>
+                <p id="browserTestResultMessage"></p>
+              </div>
+            </td>
+            <td><button id="browserTestButton" onclick="clickBrowserTest()">Baidu</button></td>>
+          </tr>
+
         </tbody>
       </table>
       <br />
-      <p id="showIP"></p>
+
       <p id="connectedWifi"></p>
       <button id="wifiSearchButton" onclick="clickWifiSearch()">
         Search Wifi

@@ -151,7 +151,7 @@ connectedText.innerHTML = `Connecting to ${btId.children[0].innerHTML}, check if
                 result = "Fail"
               }
               connectDeviceResult.innerHTML = result;
-              connectedText.innerHTML = `Bluetooth: ${btId.children[0].innerHTML} connect ${res.result}!`
+              connectedText.innerHTML = `Bluetooth: ${btId.children[0].innerHTML} connect ${res.result}! Please pair devices and retest`
               console.log(connectedText);
 
             }).catch(err=>{
@@ -164,6 +164,10 @@ connectedText.innerHTML = `Connecting to ${btId.children[0].innerHTML}, check if
 function clickWifiTest() {
     let searchButton = document.getElementById("wifiSearchButton");
     let showIP = document.getElementById("showIP");
+    let connectWifiDeviceResult = document.getElementById("connectWifiDeviceResult");
+    var wifiSupportResult = document.getElementById("wifiSupportResult");
+    var wifiEnableResult = document.getElementById("wifiEnableResult");
+
     searchButton.disabled = true;
       service.get('api/wifi',{
         params:{
@@ -171,8 +175,7 @@ function clickWifiTest() {
         }
       }).then(res=>{
           showIP.innerHTML = `devices IP is ${res.localIP}`
-          var wifiSupportResult = document.getElementById("wifiSupportResult");
-          var wifiEnableResult = document.getElementById("wifiEnableResult");
+
           console.log(wifiSupportResult)
           searchButton.disabled = false;
 
@@ -184,6 +187,7 @@ function clickWifiTest() {
 
           if(res.isWifiEnable){
               wifiEnableResult.innerHTML = 'Enable';
+              connectWifiDeviceResult.innerHTML = "Pass"
           }else {
               wifiEnableResult.innerHTML = 'Disable';
               let wifiEnableTr = document.getElementById("wifiEnableTr");
@@ -258,3 +262,72 @@ function clickWifiTest() {
                   })
   }
 
+  function clickPingTest() {
+        let connectedText = document.getElementById("connectedWifi");
+        let input = document.getElementById("pingTestInptu");
+        let pingTestResult = document.getElementById("pingTestResult");
+        let pingTestButton = document.getElementById("pingTestButton");
+        let pingTestResultMessage = document.getElementById("pingTestResultMessage");
+
+        pingTestButton.innerHTML = "testing...";
+        pingTestButton.disabled = true;
+
+        service.get('api/wifi',{
+                  params:{
+                  action:"ping",
+                  ip:input.value
+                  }
+                }).then(res=>{
+                pingTestButton.innerHTML = "Test";
+                pingTestButton.disabled = false;
+
+                if(res.result==="Pass"){
+                    pingTestResult.innerHTML = "Pass";
+                    pingTestResult.style.color = "green";
+                    pingTestResultMessage.innerHTML = "";
+                }else{
+                    pingTestResult.innerHTML = "Fail";
+                    pingTestResult.style.color = "red";
+                    pingTestResultMessage.innerHTML = res.message;
+                }
+                }).catch(err=>{
+                     pingTestButton.disabled = false;
+                    pingTestResult.innerHTML = "Fail";
+                    pingTestResult.style.color = "red";
+                    console.log(err)
+                    })
+    }
+
+  function clickBrowserTest() {
+          let connectedText = document.getElementById("connectedWifi");
+          let browserTestResult = document.getElementById("browserTestResult");
+          let browserTestButton = document.getElementById("browserTestButton");
+          let browserTestResultMessage = document.getElementById("browserTestResultMessage");
+
+          browserTestButton.innerHTML = "testing...";
+          browserTestButton.disabled = true;
+
+          service.get('api/wifi',{
+                    params:{
+                    action:"browserTest"
+                    }
+                  }).then(res=>{
+                  browserTestButton.innerHTML = "Baidu";
+                  browserTestButton.disabled = false;
+
+                  if(res.result==="Pass"){
+                      browserTestResult.innerHTML = "Pass";
+                      browserTestResult.style.color = "green";
+                      browserTestResultMessage.innerHTML = "";
+                  }else{
+                      browserTestResult.innerHTML = "Fail";
+                      browserTestResult.style.color = "red";
+                      browserTestResultMessage.innerHTML = res.message;
+                  }
+                  }).catch(err=>{
+                      browserTestButton.disabled = false;
+                      browserTestResult.innerHTML = "Fail";
+                      browserTestResult.style.color = "red";
+                      console.log(err)
+                      })
+      }

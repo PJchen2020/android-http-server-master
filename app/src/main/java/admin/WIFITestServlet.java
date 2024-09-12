@@ -79,6 +79,8 @@ public class WIFITestServlet extends HttpServlet {
     public static final String SCAN = "scan";
     private static final String ENABLE = "enable";
     private static final String INIT = "init";
+    private static final String BROWSERTEST = "browserTest";
+    private static final String PING = "ping";
 
     /**
      * {@inheritDoc}
@@ -104,6 +106,7 @@ public class WIFITestServlet extends HttpServlet {
         try {
             String wifi_action = request.getParameter(WIFI_ACTION);
             String wifi_address = request.getParameter(WIFI_ADDRESS);
+            String ping_ip_address = request.getParameter("ip");
             response.setContentType(MEDIA_TYPE_APPLICATION_JSON);
 
             if(wifi_action!=null && wifi_action.equals(ENABLE))
@@ -129,7 +132,19 @@ public class WIFITestServlet extends HttpServlet {
                 if(!wifiTestInit()) {
                     response.getWriter().print("wifiTestInit Fail!!");
                 }
-                response.getWriter().print(outputWIFIInfo(mainService));
+                response.getWriter().print(outputInitWIFIInfo(mainService));
+            }
+
+            if(wifi_action!=null && wifi_action.equals(BROWSERTEST))
+            {
+                Gson gson = new Gson();
+                response.getWriter().print(gson.toJson(wifiTester.webTest("https://www.baidu.com")));
+            }
+
+            if(wifi_action!=null && wifi_action.equals(PING)&&ping_ip_address!=null)
+            {
+                Gson gson = new Gson();
+                response.getWriter().print(gson.toJson(wifiTester.pingTest(ping_ip_address)));
             }
 
             if(wifi_action!=null && wifi_action.equals(SCAN))
@@ -178,6 +193,13 @@ public class WIFITestServlet extends HttpServlet {
                 response.getWriter().print(gson.toJson(wifiTestResult));
             }
 
+            if(wifi_action!=null && wifi_action.equals(CONNECT)&&wifi_address!=null)
+            {
+                if(!wifiTestInit()) {
+                    response.getWriter().print("wifiTestInit Fail!!");
+                }
+                response.getWriter().print(outputWIFIInfo(mainService));
+            }
 
 //            response.getWriter().print(outputWIFIInfo(mainService));
 
@@ -190,7 +212,7 @@ public class WIFITestServlet extends HttpServlet {
     }
 
 
-    private String outputWIFIInfo(MainService ms) throws JSONException {
+    private String outputInitWIFIInfo(MainService ms) throws JSONException {
         WIFITestInfo wifiTestInfo=new WIFITestInfo();
         String ScanMsg = "Task not started";
         JSONObject wifiObject = new JSONObject();
@@ -198,8 +220,9 @@ public class WIFITestServlet extends HttpServlet {
         boolean isWifiSupported = wifiTester.isWifiSupported();
         String strEnableStatus = "Enable WIFI fail";
         Map<String, String> scanAPlist = new HashMap<>();
-        String strConnectResult = "not test";
+        String strConnectResult = "Task not started";
         String errMsg = "";
+        String localIP = "";
 
         if (isWifiSupported) {
             isWifiEnable = wifiTester.isWifiEnable();
@@ -211,7 +234,69 @@ public class WIFITestServlet extends HttpServlet {
 //            wifiObject.put("isWifiSupported", isWifiSupported);
             if(isWifiSupported) {
                 wifiTestInfo.isWifiEnable=isWifiEnable;
-                wifiTestInfo.localIP=wifiTester.getLocalIP();
+                localIP=wifiTester.getLocalIP();
+                wifiTestInfo.localIP=localIP;
+                LOGGER.log(Level.INFO, "localIP: "+localIP);
+//                wifiTestInfo.localIP=wifiTester.getLocalIP();
+                wifiTestInfo.isNetConnection=wifiTester.isNetConnection(ms);
+//                wifiObject.put("isWifiEnable", isWifiEnable);
+//                wifiObject.put("localIP", wifiTester.getLocalIP());
+//                wifiObject.put("isNetConnection", wifiTester.isNetConnection(ms));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    wifiTestInfo.isNetSystemAvailable=wifiTester.isNetSystemAvailable(ms);
+//                    wifiObject.put("isNetSystemAvailable", wifiTester.isNetSystemAvailable(ms));
+                }
+                wifiTestInfo.webTestBaidu=wifiTester.startWebTest("https://www.baidu.com");
+//                wifiObject.put("webTestBaidu", wifiTester.startWebTest("https://www.baidu.com"));
+//                wifiObject.put("Web test of Google", wifiTester.startWebTest("https://www.google.com.hk/?hl=cn"));
+//                wifiObject.put("Ping test of 192.168.3.1", wifiTester.startPingTest("192.168.99.188"));//home 3.1  office:99.188
+
+                wifiTestInfo.scanWifiResult=wifiTester.bScanResult;
+                wifiTestInfo.scanMsg=ScanMsg;
+                wifiTestInfo.connectResult=wifiTester.bSConnectResult;
+                wifiTestInfo.connectMsg=strConnectResult;
+//                wifiObject.put("scanWifiResult", wifiTester.bScanResult);
+//                wifiObject.put("scanMsg", ScanMsg);
+//                wifiObject.put("connectWifiResult", wifiTester.bSConnectResult);
+//                wifiObject.put("connectMsg", strConnectResult);
+            }
+            wifiTestInfo.errMsg=errMsg;
+//            wifiObject.put("errMsg", errMsg);
+        }
+        catch (Exception e){
+            return e.toString();
+        }
+
+        Gson gson = new Gson();
+        return gson.toJson(wifiTestInfo);
+    }
+
+    private String outputWIFIInfo(MainService ms) throws JSONException {
+        WIFITestInfo wifiTestInfo=new WIFITestInfo();
+        String ScanMsg = "Task not started";
+        JSONObject wifiObject = new JSONObject();
+        boolean isWifiEnable = false;
+        boolean isWifiSupported = wifiTester.isWifiSupported();
+        String strEnableStatus = "Enable WIFI fail";
+        Map<String, String> scanAPlist = new HashMap<>();
+        String strConnectResult = "not test";
+        String errMsg = "";
+        String localIP = "";
+
+        if (isWifiSupported) {
+            isWifiEnable = wifiTester.isWifiEnable();
+        } else
+            errMsg = "WIFI not support!";
+
+        try {
+            wifiTestInfo.isWifiSupported=isWifiSupported;
+//            wifiObject.put("isWifiSupported", isWifiSupported);
+            if(isWifiSupported) {
+                wifiTestInfo.isWifiEnable=isWifiEnable;
+                localIP=wifiTester.getLocalIP();
+                wifiTestInfo.localIP=localIP;
+                LOGGER.log(Level.INFO, "localIP: "+localIP);
+//                wifiTestInfo.localIP=wifiTester.getLocalIP();
                 wifiTestInfo.isNetConnection=wifiTester.isNetConnection(ms);
 //                wifiObject.put("isWifiEnable", isWifiEnable);
 //                wifiObject.put("localIP", wifiTester.getLocalIP());
@@ -359,7 +444,7 @@ public class WIFITestServlet extends HttpServlet {
                 return false;
 
             //webViewBrowser = new WebView(mainService.getApplicationContext());
-
+            String localIP=deviceWiFiManager.getIP();
             deviceWiFiManager.setListener(new DeviceWiFiManager.WiFiListener() {
                 @Override
                 public void onScanSuccess(List<ScanResult> scanResult) {
@@ -423,6 +508,7 @@ public class WIFITestServlet extends HttpServlet {
         }
 
         private String getLocalIP(){
+//            return deviceWiFiManager.getEthernetIP();
             return deviceWiFiManager.getIP();
         }
 
@@ -438,6 +524,55 @@ public class WIFITestServlet extends HttpServlet {
                 return false;
 
             return  deviceWiFiManager.startScan();
+        }
+
+        private Object pingTest(String pingIpAddress) {
+            WIFITestResult wifiTestResult=new WIFITestResult();
+
+            if(!isValidIPAddress(pingIpAddress)) {
+                wifiTestResult.message=pingIpAddress + " is not available!";
+                wifiTestResult.result="Fail";
+                return wifiTestResult;
+            }
+            else {
+                Log.d("ping test start", "target ip = " + pingIpAddress);
+                int status = 100;
+                String result = "Fail";
+                String message = "";
+                try {
+                    //String ip = "www.baidu.com";// ping 的地址，可以换成任何一种可靠的外网
+                    Process p = Runtime.getRuntime().exec("ping -c 1 -w 100 " + pingIpAddress);// ping网址3次
+                    // 读取ping的内容，可以不加
+                    InputStream input = p.getInputStream();
+                    BufferedReader in = new BufferedReader(new InputStreamReader(input));
+                    StringBuilder stringBuffer = new StringBuilder();
+                    String content = "";
+                    while ((content = in.readLine()) != null) {
+                        stringBuffer.append(content);
+                    }
+
+                    Log.d("------ping-----", "result content : " + stringBuffer.toString());
+                    // ping的状态
+                    status = p.waitFor();
+                    if (status == 0) {
+                        result = "Pass";
+                    }
+                    else {
+                        message="ping " + pingIpAddress + " fail, status: "+status;
+                    }
+                } catch (IOException e) {
+                    message = "IOException" + e.toString();
+                } catch (InterruptedException e) {
+                    message =message+ "InterruptedException " + e.toString();
+                } finally {
+                    Log.d("----result---", "result = " + result + ", status = " + status);
+                }
+
+                Log.d("ping test finished", "target ip = " + pingIpAddress);
+                wifiTestResult.message=message;
+                wifiTestResult.result=result;
+                return wifiTestResult;
+            }
         }
 
         private boolean startPingTest(String pingIpAddress) {
@@ -568,6 +703,39 @@ public class WIFITestServlet extends HttpServlet {
 
             return isAvailable;
         }
+
+        private Object webTest(String testUrl)  {
+            HttpURLConnection httpURLConnection;
+            int connectState = -1;
+            int retryCounts = 0;
+            String result = "Fail";
+            String message = "";
+            while (retryCounts < 8) {
+                try{
+                    URL url = new URL(testUrl);
+                    httpURLConnection = (HttpURLConnection) url.openConnection();
+                    connectState = httpURLConnection.getResponseCode();
+
+                    if (connectState == 200) {
+                        result = "Pass";
+                        break;
+                    }
+                }
+                catch (Exception e) {
+                    retryCounts++;
+                    message="isNetOnline URL(" + testUrl + ")不可用，连接 " + retryCounts + " 次"+ ", state: " + connectState;
+                    LOGGER.log(Level.INFO, "isNetOnline URL(" + testUrl + ")不可用，连接第 " + retryCounts + " 次");
+                }
+                finally {
+                    LOGGER.log(Level.INFO, "isNetOnline counts: " + retryCounts + ", state: " + connectState);
+                }
+            }//end of while loop
+
+            WIFITestResult wifiTestResult=new WIFITestResult();
+            wifiTestResult.message = message;
+            wifiTestResult.result = result;
+            return wifiTestResult;
+        }//end of webTest
 
         private boolean startWebTest(String testUrl) {
             HttpURLConnection httpURLConnection;
